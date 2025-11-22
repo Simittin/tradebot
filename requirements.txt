@@ -1,0 +1,8 @@
+pandas
+yfinance
+pandas_ta
+scikit-learn
+joblib 
+
+hepsini indirmek için aşağıdaki komutu kullanabilirsiniz:
+pip install -r requirements.txt
