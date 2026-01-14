@@ -1,0 +1,119 @@
+:root {
+    --bg-color: #131722;
+    --card-bg: #1e222d;
+    --card-border: #2a2e39;
+    --text-primary: #eaecef;
+    --text-secondary: #848e9c;
+    --accent-green: #0ecb81;
+    --accent-red: #f6465d;
+    --accent-gold: #f0b90b;
+    --accent-blue: #3772ff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--card-border);
+    font-weight: 600;
+    padding: 12px 20px;
+}
+
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.stat-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.btn-outline-custom {
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    background: transparent;
+}
+
+.btn-outline-custom:hover, .btn-outline-custom.active {
+    background-color: #2a2e39;
+    color: var(--text-primary);
+    border-color: #444;
+}
+
+.table-dark {
+    --bs-table-bg: transparent;
+    background-color: transparent;
+}
+
+.table-dark td {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #232731;
+    padding: 8px;
+}
+
+.text-buy {
+    color: var(--accent-green) !important;
+}
+
+.text-sell {
+    color: var(--accent-red) !important;
+}
+
+.price-up {
+    color: var(--accent-green);
+    text-shadow: 0 0 10px rgba(14, 203, 129, 0.3);
+}
+
+.price-down {
+    color: var(--accent-red);
+    text-shadow: 0 0 10px rgba(246, 70, 93, 0.3);
+}
+
+@keyframes flashGreen {
+    0% {
+        background-color: var(--card-bg);
+    }
+    50% {
+        background-color: rgba(14, 203, 129, 0.2);
+    }
+    100% {
+        background-color: var(--card-bg);
+    }
+}
+
+@keyframes flashRed {
+    0% {
+        background-color: var(--card-bg);
+    }
+    50% {
+        background-color: rgba(246, 70, 93, 0.2);
+    }
+    100% {
+        background-color: var(--card-bg);
+    }
+}
+
+.flash-buy {
+    animation: flashGreen 0.5s ease;
+}
+
+.flash-sell {
+    animation: flashRed 0.5s ease;
+}

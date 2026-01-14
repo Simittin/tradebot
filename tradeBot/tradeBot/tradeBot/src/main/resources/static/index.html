@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group8 Pro - AI Trading Terminal</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: var(--card-bg); border-bottom: 1px solid var(--card-border);">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" href="#"><i class="fa-solid fa-robot me-2 text-warning"></i>GROUP8 BOT <span class="badge bg-warning text-dark ms-2" style="font-size:0.6rem">PRO</span></a>
+    <div class="d-flex align-items-center gap-3">
+      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="autoPilotSwitch" onchange="toggleAutoPilot()"><label class="form-check-label small text-secondary">AUTO-PILOT</label></div>
+      <div class="form-check form-switch"><input class="form-check-input bg-warning" type="checkbox" id="realMarketSwitch" onchange="toggleRealMarket()"><label class="form-check-label small text-warning">LIVE MARKET</label></div>
+      <span class="badge bg-primary bg-opacity-25 text-primary border border-primary p-2" id="strategyBadge">MA Strategy</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid" style="margin-top: 80px; padding-bottom: 20px;">
+  <div class="row g-3">
+    <div class="col-lg-9">
+      <div class="row g-3 mb-3">
+        <div class="col-md-3"><div class="card p-3"><div class="stat-title">BTC Fiyatı</div><div class="stat-value text-white" id="displayPrice">$0.00</div></div></div>
+        <div class="col-md-3"><div class="card p-3"><div class="stat-title">Varlık (BTC)</div><div class="stat-value text-info" id="assetBalance">0.0000</div></div></div>
+        <div class="col-md-3"><div class="card p-3"><div class="stat-title">Sinyal</div><div class="stat-value text-secondary" id="displaySignal">--</div></div></div>
+        <div class="col-md-3"><div class="card p-3"><div class="stat-title">Bakiye (USD)</div><div class="stat-value text-warning" id="walletBalance">$10,000.00</div></div></div>
+      </div>
+
+      <div class="card mb-3" style="height: 450px;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="fa-solid fa-chart-line text-warning me-2"></i>Piyasa Analizi</span>
+          <div class="btn-group btn-group-sm" id="timeframeGroup">
+            <button class="btn btn-outline-custom active" onclick="changeTimeframe('tick')">Tick</button>
+            <button class="btn btn-outline-custom" onclick="changeTimeframe('1m')">1m</button>
+            <button class="btn btn-outline-custom" onclick="changeTimeframe('5m')">5m</button>
+            <button class="btn btn-outline-custom" onclick="changeTimeframe('15m')">15m</button>
+            <button class="btn btn-outline-custom" onclick="changeTimeframe('4h')">4h</button>
+          </div>
+        </div>
+        <div class="card-body position-relative">
+          <div id="tickChartContainer" style="height: 100%;"><canvas id="tickChart"></canvas></div>
+          <div id="priceChartContainer" style="height: 100%; display: none;"><canvas id="priceChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header text-secondary"><i class="fa-solid fa-terminal me-2"></i>Sistem Logları (Detaylı)</div>
+            <div class="card-body p-0" style="height: 250px; overflow-y: auto;">
+              <table class="table table-dark table-hover w-100">
+                <thead><tr><th style="width:25%">Zaman</th><th style="width:20%">Tür</th><th>Detay</th><th class="text-end">Fiyat</th></tr></thead>
+                <tbody id="logTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header text-secondary"><i class="fa-solid fa-receipt me-2"></i>Gerçekleşen Emirler</div>
+            <div class="card-body p-0" style="height: 250px; overflow-y: auto;">
+              <table class="table table-dark table-hover w-100 text-center">
+                <thead><tr><th>Saat</th><th>İşlem</th><th>Fiyat</th><th>Tutar</th></tr></thead>
+                <tbody id="tradeHistoryBody"><tr><td colspan="4" class="text-muted py-4">İşlem bekleniyor...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3">
+      <div class="card mb-3">
+        <div class="card-header bg-warning bg-opacity-10 text-warning"><i class="fa-solid fa-gamepad me-2"></i>Kontrol Paneli</div>
+        <div class="card-body">
+          <input type="number" class="form-control bg-dark text-white border-secondary mb-3 text-center fw-bold" id="priceInput" value="100">
+          <button class="btn btn-primary w-100 mb-2" onclick="simulatePrice()">FİYATI GÖNDER</button>
+          <button class="btn btn-outline-warning w-100" id="simBtn" onclick="toggleSim()">Otomatik Akış</button>
+          <div class="row g-2 mt-3">
+            <div class="col-6"><button class="btn btn-outline-danger w-100 btn-sm" onclick="setPrice(90)">📉 Düşür</button></div>
+            <div class="col-6"><button class="btn btn-outline-success w-100 btn-sm" onclick="setPrice(110)">📈 Yükselt</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-microchip me-2"></i>Stratejiler</div>
+        <div class="card-body p-2 d-grid gap-2">
+          <button class="btn btn-outline-light text-start" onclick="changeStrategy('MA')">🔹 Smart Moving Avg</button>
+          <button class="btn btn-outline-light text-start" onclick="changeStrategy('MOMENTUM')">⚡ Momentum</button>
+          <button class="btn btn-outline-light text-start" onclick="changeStrategy('VOLATILITY')">📊 Bollinger Bands</button>
+          <button class="btn btn-outline-light text-start" onclick="changeStrategy('SCALPING')">⏱️ Scalper Bot</button>
+          <button class="btn btn-outline-light text-start" onclick="changeStrategy('MOVING_AVERAGE_CROSSOVER')">❌ Golden Cross</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

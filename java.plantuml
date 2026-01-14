@@ -1,0 +1,133 @@
+@startuml
+
+' == GÖRÜNÜM AYARLARI (GARANTİ OKUNABİLİRLİK) ==
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 10
+
+' Renkleri manuel sabitliyoruz (Siyah-Beyaz-Gri tonlar)
+skinparam class {
+    BackgroundColor #FEFECE
+    ArrowColor #333333
+    BorderColor #A80036
+    FontColor Black
+    AttributeFontColor Black
+    MethodFontColor Black
+    FontSize 12
+    FontName Arial
+}
+
+skinparam package {
+    BackgroundColor #EEEEEE
+    BorderColor #999999
+    FontColor Black
+    FontSize 14
+    FontStyle bold
+}
+
+skinparam interface {
+    BackgroundColor #DDFFAA
+    BorderColor #006600
+    FontColor Black
+}
+
+' İçi boş metot/değişken alanlarını gizle (Daha sade görünüm için)
+hide empty members
+
+title "Trading Bot System Architecture"
+
+' == SINIF TANIMLARI ==
+
+package "Core Controllers" {
+    class Main
+    class BotController
+    class AutoPilotService
+}
+
+package "Market Data Module" {
+    interface MarketObserver << interface >>
+    class MarketDataFeed
+    class MarketData
+    class RealMarketService
+    class SimulationService
+}
+
+package "Strategy Module" {
+    interface TradingStrategy << interface >>
+    class StrategyFactory
+    
+    package "Algorithms" {
+        class BollingerBandsStrategy
+        class GoldenCrossStrategy
+        class MacdStrategy
+        class MomentumStrategy
+        class RSIStrategy
+        class ScalpingStrategy
+    }
+}
+
+package "Execution Module" {
+    class TradingEngine
+    class BaseTradeExecutor
+    class SpotExecutor
+    class FuturesExecutor
+    class ExecutedTrade
+    
+    enum TradeSignal << enumeration >>
+    enum StrategyTerm << enumeration >>
+}
+
+package "Wallet & Accounting" {
+    interface WalletObserver << interface >>
+    class WalletService
+    class WalletLogger
+}
+
+' == İLİŞKİLER ==
+
+' Core Connections
+BotController "1" *-[#595959]-> "1" AutoPilotService
+BotController "1" *-[#595959]-> "1" MarketDataFeed
+BotController "1" *-[#595959]-> "1" RealMarketService
+BotController "1" *-[#595959]-> "1" SimulationService
+BotController "1" *-[#595959]-> "1" TradingEngine
+BotController "1" *-[#595959]-> "1" WalletLogger
+BotController "1" *-[#595959]-> "1" WalletService
+
+AutoPilotService "1" *-[#595959]-> "1" MarketDataFeed
+AutoPilotService ..|> MarketObserver
+AutoPilotService "1" *-[#595959]-> "1" TradingEngine
+
+' Market Data Connections
+MarketDataFeed ..> MarketData : "creates"
+MarketDataFeed "1" o-> "*" MarketObserver
+RealMarketService "1" *--> "1" MarketDataFeed
+SimulationService "1" *--> "1" MarketDataFeed
+
+' Strategy Connections
+StrategyFactory "1" *--> "*" TradingStrategy
+TradingEngine "1" *--> "1" StrategyFactory
+TradingEngine "1" *--> "*" TradingStrategy
+
+BollingerBandsStrategy ..|> TradingStrategy
+GoldenCrossStrategy ..|> TradingStrategy
+MacdStrategy ..|> TradingStrategy
+MomentumStrategy ..|> TradingStrategy
+RSIStrategy ..|> TradingStrategy
+ScalpingStrategy ..|> TradingStrategy
+
+' Execution Connections
+TradingEngine "1" *--> "1" SpotExecutor
+TradingEngine "1" *--> "1" MarketDataFeed
+TradingEngine ..|> MarketObserver
+
+FuturesExecutor --|> BaseTradeExecutor
+SpotExecutor --|> BaseTradeExecutor
+SpotExecutor "1" *--> "1" WalletService
+
+' Wallet Connections
+WalletService "1" o-> "*" WalletObserver
+WalletLogger ..|> WalletObserver
+WalletLogger "1" *--> "1" WalletService
+
+@enduml
